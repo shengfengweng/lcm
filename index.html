@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>史弟夫數學 - LCM 練習</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --correct-color: #2ecc71;
+            --wrong-color: #e74c3c;
+            --info-color: #f39c12; /* 新增一個資訊提示顏色 */
+            --light-bg: #ecf0f1;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .quiz-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 550px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        #logo {
+            width: 50px;
+            height: 50px;
+        }
+        
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, var(--primary-color), var(--correct-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+
+        h2 {
+            color: var(--text-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: normal;
+            font-size: 1.3em;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        #numbers {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        #options.answered .option:not(.correct):not(.wrong) {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .option {
+            display: inline-block;
+            margin: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            border: 2px solid #bdc3c7;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-size: 1.1em;
+            background: #fff;
+        }
+
+        .option:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+        }
+
+        .option:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .correct {
+            border-color: var(--correct-color);
+            background-color: #f0fff8;
+            color: var(--correct-color);
+            font-weight: bold;
+        }
+
+        .wrong {
+            border-color: var(--wrong-color);
+            background-color: #fff0f0;
+            color: var(--wrong-color);
+            font-weight: bold;
+        }
+
+        #result, #explanation {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            margin-top: 20px;
+            max-height: 0;
+            overflow: hidden;
+        }
+        
+        #result.visible, #explanation.visible {
+            opacity: 1;
+            transform: translateY(0);
+            max-height: 1000px; 
+        }
+        
+        #result {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        #explanation pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1em;
+            line-height: 1.4;
+            text-align: left;
+            white-space: pre;
+            overflow-x: auto;
+            margin-bottom: 10px;
+            border: 1px solid #e9ecef;
+        }
+        #explanation pre.final-calc {
+            border: 2px solid var(--correct-color);
+            background-color: #f0fff8;
+            text-align: center;
+        }
+        /* 新增：互質提示的樣式 */
+        #explanation pre.prime-tip {
+            border: 2px solid var(--info-color);
+            background-color: #fff9f0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #nextBtn {
+            margin-top: 20px;
+            padding: 12px 28px;
+            background: linear-gradient(45deg, var(--primary-color), var(--correct-color));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        #nextBtn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="header-container">
+            <img id="logo" src="logo.png" alt="史弟夫數學 Logo">
+            <h1>史弟夫數學</h1>
+        </div>
+        
+        <h2>最小公倍數選擇題</h2>
+        <p>請找出 <span id="numbers"></span> 的最小公倍數！</p>
+        <div id="options"></div>
+        <div id="result"></div>
+        <div id="explanation"></div>
+        <button id="nextBtn" style="display: none;" onclick="nextQuestion()">下一題</button>
+    </div>
+
+    <script>
+        // --- 核心計算函式 (保持不變) ---
+        function gcd(a, b) { while (b) { [a, b] = [b, a % b]; } return a; }
+        function lcm(a, b) { return Math.abs(a * b) / gcd(a, b); }
+        function getRandomNumber(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+        function getShortDivisionSteps(num1, num2) {
+            let n1 = num1; let n2 = num2; const steps = []; let d = 2;
+            while (d * d <= n1 || d * d <= n2) {
+                if (n1 % d === 0 && n2 % d === 0) {
+                    steps.push({ divisor: d, num1: n1, num2: n2 });
+                    n1 /= d; n2 /= d;
+                } else {
+                    d++;
+                }
+            }
+            steps.push({ divisor: null, num1: n1, num2: n2 });
+            return steps;
+        }
+        
+        function formatLCMExplanation(steps, correctLCM) {
+            if (steps.length <= 1) return '';
+
+            const numWidth = String(Math.max(...steps.flatMap(s => [s.num1, s.num2]))).length;
+            const divWidth = String(Math.max(...steps.map(s => s.divisor).filter(Boolean))).length;
+            let diagram = '';
+            steps.forEach((step, i) => {
+                if (step.divisor) {
+                    diagram += `${String(step.divisor).padStart(divWidth, ' ')} | ${String(step.num1).padStart(numWidth, ' ')}  ${String(step.num2).padStart(numWidth, ' ')}\n`;
+                    diagram += `${'-'.repeat(divWidth)}-+-${'-'.repeat(numWidth)}--${'-'.repeat(numWidth)}\n`;
+                } else {
+                    diagram += `${' '.repeat(divWidth)} | ${String(step.num1).padStart(numWidth, ' ')}  ${String(step.num2).padStart(numWidth, ' ')}\n`;
+                }
+            });
+
+            const divisors = steps.map(s => s.divisor).filter(Boolean);
+            const lastStep = steps[steps.length - 1];
+            const finalNumbers = [lastStep.num1, lastStep.num2];
+            const calculationParts = [...divisors, ...finalNumbers];
+            const calculationString = calculationParts.join(' × ');
+
+            return `
+                <strong>計算步驟 (短除法):</strong><br><br>
+                <pre>${diagram}</pre>
+                <pre class="final-calc">最小公倍數 (L型相乘) = ${calculationString}\n= ${correctLCM}</pre>
+            `;
+        }
+
+        function generateWrongLCMOptions(correct, num1, num2) {
+            let wrongOptions = new Set();
+            const currentGcd = gcd(num1, num2);
+            const distractors = [num1 * num2, correct * 2, currentGcd, num1 + num2, Math.max(num1, num2)];
+            for (const distractor of distractors) {
+                if (distractor !== correct && distractor > 1) wrongOptions.add(distractor);
+            }
+            while (wrongOptions.size < 4) {
+                let wrong = Math.round(correct * (getRandomNumber(5, 15) / 10));
+                if (wrong !== correct && wrong > 1 && !wrongOptions.has(wrong)) wrongOptions.add(wrong);
+            }
+            return Array.from(wrongOptions).slice(0, 4);
+        }
+        
+        function generateQuiz() {
+            let num1, num2, correctLCM;
+            do {
+                num1 = getRandomNumber(10, 99);
+                num2 = getRandomNumber(10, 99);
+                correctLCM = lcm(num1, num2);
+            } while (num1 === num2 || num1 % num2 === 0 || num2 % num1 === 0 || correctLCM > 2000);
+
+            let wrongOptions = generateWrongLCMOptions(correctLCM, num1, num2);
+            let options = [correctLCM, ...wrongOptions].sort(() => Math.random() - 0.5);
+            document.getElementById('numbers').textContent = `${num1} 與 ${num2}`;
+            const resultDiv = document.getElementById('result');
+            const explanationDiv = document.getElementById('explanation');
+            const optionsDiv = document.getElementById('options');
+            resultDiv.classList.remove('visible');
+            explanationDiv.classList.remove('visible');
+            optionsDiv.classList.remove('answered');
+            resultDiv.innerHTML = '';
+            explanationDiv.innerHTML = '';
+            document.getElementById('nextBtn').style.display = 'none';
+            optionsDiv.innerHTML = '';
+            options.forEach(opt => {
+                let div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = opt;
+                div.onclick = () => checkAnswer(opt, correctLCM, num1, num2);
+                optionsDiv.appendChild(div);
+            });
+        }
+        
+        // --- ★★★ 修改點：checkAnswer 函式 ★★★ ---
+        function checkAnswer(selected, correct, num1, num2) {
+            document.querySelectorAll('.option').forEach(div => div.onclick = null);
+            document.getElementById('options').classList.add('answered');
+            document.querySelectorAll('.option').forEach(div => {
+                let num = parseInt(div.textContent);
+                if (num === correct) div.classList.add('correct');
+                if (num === selected && num !== correct) div.classList.add('wrong');
+            });
+            
+            const resultDiv = document.getElementById('result');
+            const explanationDiv = document.getElementById('explanation');
+            
+            if (selected === correct) {
+                resultDiv.innerHTML = `🎉 答對了！最小公倍數就是 ${correct}！`;
+            } else {
+                resultDiv.innerHTML = `❌ 答錯了！正確答案是 ${correct}。`;
+                
+                // 檢查是否互質
+                if (gcd(num1, num2) === 1) {
+                    // 如果互質，顯示特別提示
+                    explanationDiv.innerHTML = `
+                        <pre class="prime-tip">
+💡 學習小提示 💡
+當 ${num1} 和 ${num2} 互質時 (最大公因數為 1)，
+它們的最小公倍數就是兩數的乘積！
+${num1} × ${num2} = ${correct}
+                        </pre>
+                    `;
+                } else {
+                    // 如果不互質，顯示正常的短除法過程
+                    const steps = getShortDivisionSteps(num1, num2);
+                    const explanationHtml = formatLCMExplanation(steps, correct);
+                    explanationDiv.innerHTML = explanationHtml;
+                }
+                explanationDiv.classList.add('visible');
+            }
+            
+            resultDiv.classList.add('visible');
+            document.getElementById('nextBtn').style.display = 'inline-block';
+        }
+
+        function nextQuestion() {
+            generateQuiz();
+        }
+        
+        generateQuiz();
+    </script>
+</body>
+</html>
